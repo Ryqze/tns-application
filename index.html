@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TNS.Gaming – Bewerbung</title>
+
+  <!-- ======= Styles (eingebettet für einfache Nutzung) ======= -->
+  <style>
+    :root{
+      --bg:#050505;
+      --card:#0f0f0f;
+      --accent:#ff0000;
+      --muted:#bdbdbd;
+      --glass: rgba(255,255,255,0.03);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,Segoe UI,Arial,Helvetica,sans-serif;
+      background:linear-gradient(180deg,#050505 0%, #0a0a0a 100%);
+      color:#fff;
+      -webkit-font-smoothing:antialiased;
+      overflow-x:hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Canvas background */
+    #bgCanvas{
+      position:fixed;
+      inset:0;
+      z-index:-1;
+      display:block;
+      width:100%;
+      height:100%;
+      will-change:transform;
+    }
+
+    /* Header */
+    header{
+      position:relative;
+      text-align:center;
+      padding:36px 20px;
+      border-bottom:2px solid rgba(255,0,0,0.12);
+      backdrop-filter: blur(4px);
+      background: linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.12));
+    }
+    .logo-area{display:inline-flex;align-items:center;gap:14px}
+    .logo-area img{
+      width:84px;height:84px;border-radius:12px;object-fit:cover;
+      box-shadow:0 12px 40px rgba(0,0,0,0.6), 0 0 18px rgba(255,0,0,0.08);
+      transform-origin:center;
+      transition: transform 420ms cubic-bezier(.2,.9,.2,1), box-shadow 420ms;
+      will-change: transform, box-shadow;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));
+    }
+    .logo-area:hover img{
+      transform: translateY(-6px) rotate(-2deg) scale(1.03);
+      box-shadow:0 20px 60px rgba(0,0,0,0.7), 0 0 28px rgba(255,0,0,0.18);
+    }
+    h1{margin:0;font-size:36px;color:var(--accent);letter-spacing:1px}
+    .subtitle{margin-top:8px;color:var(--muted);font-size:15px}
+
+    /* Layout */
+    main{max-width:980px;margin:36px auto;padding:0 18px}
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      padding:22px;border-radius:12px;margin-bottom:22px;
+      box-shadow:0 8px 30px rgba(0,0,0,0.6);
+      transform:translateY(8px);
+      opacity:0;
+      transition: opacity 700ms cubic-bezier(.2,.9,.2,1), transform 700ms cubic-bezier(.2,.9,.2,1);
+      will-change: transform, opacity;
+    }
+    .card.visible{ opacity:1; transform:none; }
+
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:12px}
+
+    /* Form */
+    label{display:block;font-size:13px;color:var(--muted);margin-top:8px}
+    input,textarea{
+      width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);
+      background:#0b0b0b;color:#fff;font-size:15px;transition:box-shadow .18s,transform .08s;
+      will-change:transform,box-shadow;
+    }
+    input::placeholder, textarea::placeholder { color: #777; }
+    input:focus,textarea:focus{outline:none;box-shadow:0 6px 20px rgba(255,0,0,0.12);transform:translateY(-2px)}
+    .actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+    button{
+      background:var(--accent);color:#fff;border:none;padding:10px 14px;border-radius:10px;font-weight:600;cursor:pointer;
+      transition:transform .12s cubic-bezier(.2,.9,.2,1),box-shadow .12s,background .12s;
+      will-change:transform,box-shadow;
+    }
+    button:hover{transform:translateY(-4px);box-shadow:0 14px 40px rgba(255,0,0,0.18)}
+    button.secondary{ background: transparent; border: 1px solid rgba(255,255,255,0.06); color: var(--muted); }
+    .status{margin-top:10px;color:var(--muted);min-height:20px}
+
+    /* Footer */
+    footer{text-align:center;padding:18px;color:#9a9a9a;font-size:13px;border-top:1px solid rgba(255,255,255,0.02)}
+
+    /* Small devices */
+    @media (max-width:720px){
+      .grid{grid-template-columns:1fr}
+      .logo-area img{width:64px;height:64px}
+      h1{font-size:28px}
+    }
+
+    /* subtle header glow */
+    header::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 0;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 220px;
+      pointer-events: none;
+      background: radial-gradient(closest-side, rgba(255,0,0,0.06), transparent 40%);
+      filter: blur(28px);
+      z-index: -1;
+    }
+
+    /* ripple effect fallback */
+    button.ripple { position: relative; overflow: hidden; }
+    button.ripple::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 8px;
+      height: 8px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 50%;
+      transform: translate(-50%,-50%) scale(1);
+      opacity: 0;
+      transition: transform 520ms cubic-bezier(.2,.9,.2,1), opacity 520ms;
+    }
+    button.ripple:active::after {
+      transform: translate(-50%,-50%) scale(40);
+      opacity: 1;
+      transition: transform 420ms cubic-bezier(.2,.9,.2,1), opacity 420ms;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Canvas für flüssige Hintergrundanimation -->
+  <canvas id="bgCanvas" aria-hidden="true"></canvas>
+
+  <header>
+    <div class="logo-area">
+      <!-- Setze hier eine direkte Bild-URL oder den Dateinamen deines Logos in das src-Attribut -->
+      <img id="clanLogo" src="" alt="TNS.Gaming Logo">
+      <div>
+        <h1>TNS.Gaming</h1>
+        <div class="subtitle">Gemeinsam stärker – Werde Teil unseres Clans</div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="about card">
+      <h2>Über TNS.Gaming</h2>
+      <p>TNS.Gaming ist ein engagierter Multigaming‑Clan, der Teamgeist, Fairplay und Spaß verbindet. Wir spielen kompetitiv und casual und veranstalten regelmäßige Events.</p>
+
+      <div class="grid">
+        <div>
+          <h3>Was wir bieten</h3>
+          <ul>
+            <li>Aktive Spieler in mehreren Games</li>
+            <li>Discord‑Community</li>
+            <li>Events & Turniere</li>
+            <li>Strukturierte Teams & Trainings</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Was wir suchen</h3>
+          <ul>
+            <li>Teamfähigkeit & Respekt</li>
+            <li>Aktivität</li>
+            <li>Mind. 16 Jahre</li>
+            <li>Discord‑Bereitschaft</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="apply card">
+      <h2>Bewirb dich jetzt</h2>
+      <form id="applyForm" autocomplete="off" novalidate>
+        <label for="name">Name / Nickname</label>
+        <input id="name" name="name" type="text" placeholder="Dein Nickname" required>
+
+        <label for="age">Alter</label>
+        <input id="age" name="age" type="number" min="12" placeholder="z. B. 18" required>
+
+        <label for="games">Welche Games?</label>
+        <input id="games" name="games" type="text" placeholder="z. B. Valorant, CS2, Rocket League" required>
+
+        <label for="reason">Warum TNS.Gaming?</label>
+        <textarea id="reason" name="reason" rows="4" placeholder="Kurz beschreiben, warum du zu uns willst" required></textarea>
+
+        <label for="discord">Discord‑Name</label>
+        <input id="discord" name="discord" type="text" placeholder="Name#1234" required>
+
+        <div class="actions">
+          <button type="submit" class="ripple">Bewerbung speichern</button>
+          <button type="button" id="downloadBtn" class="secondary ripple">Als Datei herunterladen</button>
+          <button type="button" id="copyBtn" class="secondary ripple">In Zwischenablage kopieren</button>
+        </div>
+
+        <p id="status" class="status" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2026 TNS.Gaming</p>
+  </footer>
+
+  <!-- ======= Script (eingebettet) ======= -->
+  <script>
+    /* =========================
+       Canvas Particles (performant)
+       ========================= */
+    (function(){
+      const canvas = document.getElementById('bgCanvas');
+      const ctx = canvas.getContext('2d', { alpha: true });
+      let DPR = Math.max(1, window.devicePixelRatio || 1);
+
+      function resize(){
+        DPR = Math.max(1, window.devicePixelRatio || 1);
+        const w = canvas.clientWidth || window.innerWidth;
+        const h = canvas.clientHeight || window.innerHeight;
+        canvas.width = Math.floor(w * DPR);
+        canvas.height = Math.floor(h * DPR);
+        ctx.setTransform(DPR,0,0,DPR,0,0);
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      // Particle factory
+      function createParticles(n){
+        const arr = [];
+        const W = window.innerWidth, H = window.innerHeight;
+        for(let i=0;i<n;i++){
+          arr.push({
+            x: Math.random() * W,
+            y: Math.random() * H,
+            vx: (Math.random() - 0.5) * 0.02,
+            vy: (Math.random() - 0.5) * 0.02,
+            size: 6 + Math.random() * 26,
+            alpha: 0.03 + Math.random() * 0.12,
+            phase: Math.random() * Math.PI * 2,
+            speed: 0.2 + Math.random() * 0.9
+          });
+        }
+        return arr;
+      }
+
+      const particleCount = Math.max(14, Math.floor(window.innerWidth / 80));
+      const particles = createParticles(particleCount);
+
+      let last = performance.now();
+      function loop(now){
+        const dt = Math.min(40, now - last);
+        last = now;
+        update(dt);
+        render();
+        requestAnimationFrame(loop);
+      }
+
+      function update(dt){
+        const W = window.innerWidth, H = window.innerHeight;
+        for(const p of particles){
+          p.phase += 0.0009 * dt * p.speed;
+          p.x += p.vx * dt * p.speed + Math.cos(p.phase) * 0.02 * dt;
+          p.y += p.vy * dt * p.speed + Math.sin(p.phase) * 0.02 * dt;
+          if(p.x < -80) p.x = W + 80;
+          if(p.x > W + 80) p.x = -80;
+          if(p.y < -80) p.y = H + 80;
+          if(p.y > H + 80) p.y = -80;
+        }
+      }
+
+      function render(){
+        const W = canvas.clientWidth || window.innerWidth;
+        const H = canvas.clientHeight || window.innerHeight;
+        ctx.clearRect(0,0,W,H);
+
+        // subtle gradient overlay
+        const g = ctx.createLinearGradient(0,0,W,H);
+        g.addColorStop(0, 'rgba(255,0,0,0.02)');
+        g.addColorStop(1, 'rgba(0,0,0,0.02)');
+        ctx.fillStyle = g;
+        ctx.fillRect(0,0,W,H);
+
+        for(const p of particles){
+          const grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+          grd.addColorStop(0, `rgba(255,40,40,${p.alpha})`);
+          grd.addColorStop(0.6, `rgba(120,10,10,${p.alpha * 0.6})`);
+          grd.addColorStop(1, `rgba(0,0,0,0)`);
+          ctx.fillStyle = grd;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      requestAnimationFrame(loop);
+    })();
+
+    /* =========================
+       Logo Parallax (leicht)
+       ========================= */
+    (function(){
+      const logo = document.getElementById('clanLogo');
+      if(!logo) return;
+      let lastX = 0, lastY = 0;
+      const strength = 0.02; // dezent
+      window.addEventListener('mousemove', (e) => {
+        const cx = window.innerWidth / 2;
+        const cy = window.innerHeight / 2;
+        const dx = (e.clientX - cx) * strength;
+        const dy = (e.clientY - cy) * strength;
+        lastX += (dx - lastX) * 0.12;
+        lastY += (dy - lastY) * 0.12;
+        logo.style.transform = `translate3d(${lastX}px, ${lastY}px, 0) rotate(${lastX * 0.02}deg)`;
+      });
+      // gentle idle motion for devices without mouse
+      let t = 0;
+      function idle(){
+        t += 0.01;
+        const ix = Math.cos(t) * 2;
+        const iy = Math.sin(t) * 1.5;
+        logo.style.transform = `translate3d(${lastX + ix}px, ${lastY + iy}px, 0) rotate(${(lastX + ix) * 0.02}deg)`;
+        requestAnimationFrame(idle);
+      }
+      requestAnimationFrame(idle);
+    })();
+
+    /* =========================
+       Section reveal (IntersectionObserver)
+       ========================= */
+    (function(){
+      const cards = document.querySelectorAll('.card');
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if(entry.isIntersecting){
+            entry.target.classList.add('visible');
+          }
+        });
+      }, {threshold: 0.12});
+      cards.forEach(c => io.observe(c));
+    })();
+
+    /* =========================
+       Form handling (lokal): save, download, copy
+       ========================= */
+    (function(){
+      const form = document.getElementById('applyForm');
+      const status = document.getElementById('status');
+      const downloadBtn = document.getElementById('downloadBtn');
+      const copyBtn = document.getElementById('copyBtn');
+
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        if(!form.checkValidity()){
+          status.textContent = 'Bitte alle Felder korrekt ausfüllen.';
+          return;
+        }
+        const data = gatherForm(form);
+        saveApplication(data);
+        status.textContent = 'Bewerbung lokal gespeichert.';
+        form.reset();
+        // subtle fade
+        status.style.opacity = '0';
+        requestAnimationFrame(()=> {
+          status.style.transition = 'opacity 420ms ease-out';
+          status.style.opacity = '1';
+        });
+      });
+
+      downloadBtn.addEventListener('click', () => {
+        const data = gatherForm(form);
+        const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `tns_bewerbung_${sanitizeFilename(data.name||'bewerbung')}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      });
+
+      copyBtn.addEventListener('click', async () => {
+        const data = gatherForm(form);
+        try {
+          await navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+          status.textContent = 'Bewerbung in die Zwischenablage kopiert.';
+        } catch {
+          status.textContent = 'Kopieren fehlgeschlagen (Browser erlaubt es nicht).';
+        }
+      });
+
+      // add ripple class to buttons
+      document.querySelectorAll('.actions button').forEach(btn => btn.classList.add('ripple'));
+    })();
+
+    function gatherForm(form){
+      return {
+        name: form.name.value.trim(),
+        age: form.age.value,
+        games: form.games.value.trim(),
+        reason: form.reason.value.trim(),
+        discord: form.discord.value.trim(),
+        timestamp: new Date().toISOString()
+      };
+    }
+
+    function saveApplication(data){
+      const key = 'tns_applications';
+      const list = JSON.parse(localStorage.getItem(key) || '[]');
+      list.unshift(data);
+      localStorage.setItem(key, JSON.stringify(list));
+    }
+
+    function sanitizeFilename(name){
+      return name.replace(/[^a-z0-9_\-]/gi,'_').toLowerCase();
+    }
+  </script>
+</body>
+</html>
